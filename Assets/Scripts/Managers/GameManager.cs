@@ -179,6 +179,9 @@ public class GameManager : MonoBehaviour
     {
         helicopterEffect.SetActive(true);
         DialogueManager.instance.ShowFinalDialogSequence();
+
+        var audioSource = helicopterEffect.GetComponent<AudioSource>();
+        SFXManager.instance.PlayHeliSound(audioSource);
     }
     #endregion
 

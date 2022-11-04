@@ -27,13 +27,14 @@ public class PlayerBehaviour : MonoBehaviour, IDamageable
     [SerializeField] float fireCD = 0.05f;
     [Header("References")]
     [SerializeField] GameObject gun;
+    [SerializeField] AudioSource gunAudioSource;
+    [SerializeField] AudioSource playerAudioSource;
     [SerializeField] GameObject bulletPrefab;
     [SerializeField] LineRenderer laserSight;
     [SerializeField] Transform firingPosition;
     [SerializeField] ParticleSystem muzzleParticles;
     [SerializeField] SpriteRenderer circleIndicator;
     [SerializeField] LayerMask groundLayer;
-
     Vector3 currentDirection;
     float lastShot;
 
@@ -66,7 +67,6 @@ public class PlayerBehaviour : MonoBehaviour, IDamageable
         //SetLocalPlayer();
 
         mainCam = Camera.main;
-
     }
 
     private void OnEnable()
@@ -279,6 +279,7 @@ public class PlayerBehaviour : MonoBehaviour, IDamageable
         if (Time.time - lastShot < fireCD)
             return;
 
+        SFXManager.instance.PlayFiringGun(gunAudioSource);
         GameObject bullet = null;
         bullet = Instantiate(bulletPrefab, firingPosition.position, firingPosition.rotation);
         //if (PhotonNetwork.InRoom)
@@ -302,9 +303,13 @@ public class PlayerBehaviour : MonoBehaviour, IDamageable
 
         Health -= amount;
         HUDManager.instance.UpdateHealthBar(maxHealth, amount);
+        SFXManager.instance.PlayRandomPlayerTakeDamageSound(playerAudioSource);
 
         if (health <= 0)
+        {
+            SFXManager.instance.PlayPlayerDiedSound(playerAudioSource);
             EventsManager.OnPlayerDied?.Invoke(this.GetInstanceID());
+        }
     }
 
     public void Die(int id)

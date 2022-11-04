@@ -31,6 +31,8 @@ public class EnemyBehaviour : MonoBehaviour, IDamageable
     public Animator EnemyAnim => enemyAnim;
     public float Damage => damage;
 
+    AudioSource myAudioSource;
+
 
 
     // Start is called before the first frame update
@@ -43,8 +45,11 @@ public class EnemyBehaviour : MonoBehaviour, IDamageable
         pointsWorth *= (shotsToDie+Mathf.RoundToInt(speed));
         enemyAnim = GetComponent<Animator>();
         hitterArm.enabled = false;
+        myAudioSource = GetComponent<AudioSource>();
 
+        StartCoroutine(IdleSoundCoroutine());
     }
+
 
     private void OnEnable()
     {
@@ -165,6 +170,7 @@ public class EnemyBehaviour : MonoBehaviour, IDamageable
 
         if (shotsToDie <= 0)
         {
+            SFXManager.instance.PlayEnemyDiedSound(myAudioSource);
             EventsManager.OnEnemyDied?.Invoke(uniqueID);
         }
             
@@ -230,7 +236,7 @@ public class EnemyBehaviour : MonoBehaviour, IDamageable
     }
     #endregion
 
-    #region Animation
+    #region Animation/Sounds
     void EnemyAnim_Walk(bool s)
     {
         enemyAnim.SetBool("isWalking", s);
@@ -240,5 +246,26 @@ public class EnemyBehaviour : MonoBehaviour, IDamageable
     {
         enemyAnim.SetBool("isAttacking", s);
     }
+
+    IEnumerator IdleSoundCoroutine()
+    {
+        while (isDead() == false)
+        {
+            SFXManager.instance.PlayRandomZombieSound(myAudioSource);
+            //Debug.LogWarning("PLAYING FIRST SOUND!");
+
+            while (true)
+            {
+                float delay = Random.Range(3, 8);
+                yield return new WaitForSeconds(delay);
+                if (isDead() == false && myAudioSource.isPlaying == false)
+                {
+                    //Debug.LogWarning("PLAYING ENEMY SOUND!");
+                    SFXManager.instance.PlayRandomZombieSound(myAudioSource);
+                }
+            }
+        }
+    }
+
     #endregion
 }

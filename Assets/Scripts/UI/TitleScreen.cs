@@ -14,6 +14,7 @@ public class TitleScreen : MonoBehaviour
 
     [SerializeField] float fadeInVelocity;
     [SerializeField] float fadeOutVelocity;
+    [SerializeField] AudioSource pressedSound;
 
     private void Awake()
     {
@@ -40,7 +41,13 @@ public class TitleScreen : MonoBehaviour
         if (Input.anyKeyDown && button.activeSelf)
         {
             TappedAnywhere();
+            ManualDestroyBGM();
         }
+    }
+
+    public void ManualDestroyBGM()
+    {
+        FindObjectOfType<BGM>().FadeOutAndDestroy(fadeOutVelocity);
     }
 
     public void GoToNextScene()
@@ -51,10 +58,19 @@ public class TitleScreen : MonoBehaviour
 
     public void TappedAnywhere() //tb é chamado pelo inspector dentro do botão "Button"
     {
+        PlaySound();
         button.SetActive(false);
         tapAnywhereText.SetActive(false);
         GoToNextScene();
         //loginButtons.SetActive(true);
+    }
+
+    void PlaySound()
+    {
+        if (button.activeSelf)
+        {
+            pressedSound.Play();
+        }
     }
 
     public void PlayWithoutLogin()
